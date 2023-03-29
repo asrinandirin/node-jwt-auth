@@ -2,6 +2,7 @@ const { User, validate } = require("../models/User");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const config = require('config')
 
 const handleErrors = (err) => {
   console.log(err.message, err.code);
@@ -9,7 +10,7 @@ const handleErrors = (err) => {
 const maxAge = 3 * 24 * 60 * 60;
 
 const createToken = (id) => {
-  return jwt.sign({ id }, "asrin secret", {
+  return jwt.sign({ id }, config.get('jwtPrivateKey'), {
     expiresIn: maxAge,
   });
 };
@@ -33,8 +34,7 @@ module.exports.signup_post = async (req, res) => {
       email,
       password,
     });
-    const token = createToken(user._id);
-    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+    
     res.status(201).json(user);
   } catch (error) {
     handleErrors(error);
